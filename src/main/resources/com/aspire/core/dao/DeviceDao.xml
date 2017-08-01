@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aspire.core.dao.DeviceDao">
+	<resultMap id="device" type="Device">
+		<result property="deviceId" column="deviceId" />
+		<result property="deviceName" column="deviceName" />
+		<result property="firmVersion" column="firmVersion" />
+		<result property="recordDateTime" column="recordDateTime" />
+		<result property="deviceStatus" column="deviceStatus" />
+	</resultMap>
+	<!--  获取默认的数据   -->
+	<select id="findDefault" resultMap="device">
+		select * from device where deviceStatus=2
+	</select>
+	
+	<!-- 修改设备状态 -->
+	<update id="changStatus">
+		UPDATE device SET deviceStatus=1 WHERE deviceId=#{deviceId}
+	</update>
+	
+	<!-- 增加设备 -->
+	<insert id="addDevice" parameterType="device">
+		insert into device(deviceId,deviceName,firmVersion,recordDateTime,deviceStatus) values(#{deviceId},#{deviceName},#{firmVersion},#{recordDateTime},#{deviceStatus})
+	</insert>
+</mapper>

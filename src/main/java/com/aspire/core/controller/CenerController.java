@@ -15,13 +15,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 
 import com.aspire.core.bean.Device;
 import com.aspire.core.service.DeviceService;
 
-import net.sf.json.JSONObject;
 
 @Controller
 public class CenerController {
@@ -83,6 +81,32 @@ public class CenerController {
 		
 		//增加设备
 	    List<Device> deviceList=deviceService.addDevice(device);
+		model.addAttribute("deviceList",deviceList);
+		
+		return "/deviceList";
+	}
+	
+	//跳转添加设备页面
+	@RequestMapping(value="/device/queryDevice")
+	public String queryDevice(HttpServletRequest request,HttpServletResponse response,
+			Model model) throws UnsupportedEncodingException{
+		response.setCharacterEncoding("utf-8");
+		request.setCharacterEncoding("utf-8");
+		String deviceName = request.getParameter("deviceName");
+		String deviceId = request.getParameter("deviceId");
+		String deviceVersion = request.getParameter("deviceVersion");
+		String deviceStatus = request.getParameter("deviceStatus");
+		String pageNo = request.getParameter("pageNo");
+		String startTime = request.getParameter("startTime");
+		String endTime = request.getParameter("endTime");
+		
+		Device device=new Device();
+		device.setDeviceId(deviceId);
+		device.setDeviceName(deviceName);
+		device.setDeviceStatus(Integer.valueOf(deviceStatus));
+		device.setFirmVersion(deviceVersion);
+		
+		List<Device> deviceList=deviceService.queryDeviceByPage(device,pageNo,startTime,endTime);
 		model.addAttribute("deviceList",deviceList);
 		
 		return "/deviceList";

@@ -8,6 +8,43 @@
 		<result property="recordDateTime" column="recordDateTime" />
 		<result property="deviceStatus" column="deviceStatus" />
 	</resultMap>
+	
+	
+	<sql id="deviceListWhere">
+		<where>
+				1=1 
+				<if test="deviceId != null">
+					and deviceId=#{deviceId}
+				</if>
+				<if test="deviceName!=null">
+					and eviceName LIKE "%"#{deviceName}"%"
+				</if>
+				<if test="deviceVersion != null">
+					and firmVersion=#{deviceVersion}
+				</if>
+				<if test="deviceStatus != null">
+					and deviceStatus=#{deviceStatus}
+				</if>
+				<if test="startTime != null" >
+					<if test="endTime != null">
+					  	and recordDateTime BETWEEN  "#{startTime}" AND "#{endTime}"
+					</if>
+				</if>
+			
+		</where>
+	</sql>
+	
+	<sql id="deviceListOrder">
+		order by recordDateTime DESC
+	</sql>
+	
+	<sql id="deviceListLimit">
+		<if test="startRow != null">
+			limit #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	
 	<!--  获取默认的数据   -->
 	<select id="findDefault" resultMap="device">
 		select * from device where deviceStatus=2
@@ -22,4 +59,19 @@
 	<insert id="addDevice" parameterType="device">
 		insert into device(deviceId,deviceName,firmVersion,recordDateTime,deviceStatus) values(#{deviceId},#{deviceName},#{firmVersion},#{recordDateTime},#{deviceStatus})
 	</insert>
+	
+	<!-- 统计设备记录的总数 -->
+	<select id="getCountRecouds" parameterType="DeviceQuery" resultType="int">
+		select count(1) from device 
+		<include refid="deviceListWhere" />
+	</select>
+	
+	<!-- 查询指定页的数据 -->
+	<select id="queryDeviceByPage" parameterType="DeviceQuery"  resultMap="device">
+		SELECT * FROM device
+		<include refid="deviceListWhere" />
+		<include refid="deviceListOrder" />
+		<include refid="deviceListLimit" />
+	</select>
+	
 </mapper>

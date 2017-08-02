@@ -11,4 +11,7 @@ public interface DeviceService {
 
 	public List<Device> addDevice(Device device);
 
+	public List<Device> queryDeviceByPage(Device device, String pageNo, String startTime, String endTime);
+
+
 }

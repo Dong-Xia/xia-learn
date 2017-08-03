@@ -1,35 +1,40 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
     pageEncoding="utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<!-- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> -->
+<!DOCTYPE html>
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
 <title>deviceList</title>
 
-<script type="text/javascript" >
-
-
-</script>
+<script type="text/javascript" src="/js/jquery.easyui.min.js"></script>
+<script type="text/javascript" src="/js/easyui-lang-zh_CN.js"></script>
+<script type="text/javascript" src="/js/jquery.min.js"></script>
+<link rel="stylesheet" href="/js/easyui.css" type="text/css"></link>
+<link rel="stylesheet" href="/js/icon.css" type="text/css"></link>
 </head>
 <body>
 	<div id="queryData">
 		<form action="queryDevice" method="post" style="padding-top:5px;">
-			<input type="hidden" value="1" name="pageNo"/>
-				设备名称: <input type="text"  value="" name="deviceName"/>
-				设备编码: <input type="text"  value="" name="devcieId"/>
+			<input type="hidden" value="1" name="pageNumber"/>
+				设备名称: <input type="text"  value="${deviceName}" name="deviceName"/>
+				设备编码: <input type="text"  value="${deviceId}" name="devcieId"/>
 					<select  name="deviceVersion">
 						<option value="">设备版本</option>
-						<option value="1">DTSK3</option>
-						<option value="2">DTSK4</option>
-						<option value="3">DTSK3A</option>
+						<option value="DTSK3" <c:if test="${deviceVersion =='DTSK3'}">selected="selected"</c:if>>DTSK3</option>
+						<option value="DTSK4" <c:if test="${deviceVersion =='DTSK4'}">selected="selected"</c:if>>DTSK4</option>
+						<option value="DTSK5" <c:if test="${deviceVersion =='DTSK5'}">selected="selected"</c:if>>DTSK5</option>
+						<option value="DTSK3A" <c:if test="${deviceVersion =='DTSK3A'}">selected="selected"</c:if>>DTSK3A</option>
 						
 					</select>
 					<select  name="deviceStatus">
 						<option value="">设备状态</option>
-						<option value="1">在线</option>
-						<option value="2">离线</option>
+						<option value="1" <c:if test="${deviceStatus ==1}">selected="selected"</c:if>>在线</option>
+						<option value="2" <c:if test="${deviceStatus ==2}">selected="selected"</c:if>>离线</option>
 					</select>
+				入库时间：<!-- <input class="easyui-datebox"  name="recordStartTime"/> -->
+					<input type="date" value="${startTime}" name="startTime"/> 到   <input type="date" value="${endTime}" name="endTime"/> 
 					<input type="submit" class="query" value="查询"/>
 		</form>
 	</div>
@@ -66,29 +71,34 @@
     		</c:forEach> 
 		</table>
 		
-	<div class="page pb15"><span class="r inb_a page_b">
-	
-		<font size="2">首页</font>
-	
-		<font size="2">上一页</font>
-	
-		<strong>1</strong>
-	
-		<a href="queryDevice?&amp;isShow=0&amp;pageNo=2">2</a>
-	
-		<a href="queryDevice?&amp;isShow=0&amp;pageNo=3">3</a>
-	
-		<a href="queryDevice?&amp;isShow=0&amp;pageNo=4">4</a>
-	
-		<a href="queryDevice?&amp;isShow=0&amp;pageNo=5">5</a>
-	
-		<a href="queryDevice?&amp;isShow=0&amp;pageNo=2"><font size="2">下一页</font></a>
-	
-		<a href="queryDevice?&amp;isShow=0&amp;pageNo=5"><font size="2">尾页</font></a>
-	
-		共<var>5</var>页 到第<input type="text" size="3" id="PAGENO"/>页 <input type="button" onclick="javascript:window.location.href = 'queryDevice?&amp;isShow=0&amp;pageNo=' + $('#PAGENO').val() " value="确定" class="hand btn60x20" id="skip"/>
-	
-	</span></div>
+	<div class="page">
+		<c:if test="${pageNumber-1 !=0 }">
+			<a href="queryDevice?deviceName=${deviceName}&amp;deviceId=${deviceId}&amp;deviceVersion=${deviceVersion}&amp;deviceStatus=${deviceStatus}&amp;pageNumber=1"><font size="2" >首页</font></a>
+		</c:if>
+		<c:if test="${pageNumber-1 >0 }">
+			<a href="queryDevice?deviceName=${deviceName}&amp;deviceId=${deviceId}&amp;deviceVersion=${deviceVersion}&amp;deviceStatus=${deviceStatus}&amp;pageNumber=${pageNumber-1}"><font size="2">上一页</font></a>
+		</c:if>
+		<a href="queryDevice?deviceName=${deviceName}&amp;deviceId=${deviceId}&amp;deviceVersion=${deviceVersion}&amp;deviceStatus=${deviceStatus}&amp;pageNumber=${pageNumber}"><strong>${pageNumber}</strong></a>
+		<c:if test="${pageNumber+1 <=countPages }">
+				<a href="queryDevice?deviceName=${deviceName}&amp;deviceId=${deviceId}&amp;deviceVersion=${deviceVersion}&amp;deviceStatus=${deviceStatus}&amp;pageNumber=${pageNumber+1}">${pageNumber+1}</a>
+		</c:if>
+		<c:if test="${pageNumber+2 <=countPages }">
+				<a href="queryDevice?deviceName=${deviceName}&amp;deviceId=${deviceId}&amp;deviceVersion=${deviceVersion}&amp;deviceStatus=${deviceStatus}&amp;pageNumber=${pageNumber+2}">${pageNumber+2}</a>
+		</c:if>
+		<c:if test="${pageNumber+3 <=countPages }">
+				<a href="queryDevice?deviceName=${deviceName}&amp;deviceId=${deviceId}&amp;deviceVersion=${deviceVersion}&amp;deviceStatus=${deviceStatus}&amp;pageNumber=${pageNumber+3}">${pageNumber+3}</a>
+		</c:if>
+		<c:if test="${pageNumber+1 <=countPages }">
+			<a href="queryDevice?deviceName=${deviceName}&amp;deviceId=${deviceId}&amp;deviceVersion=${deviceVersion}&amp;deviceStatus=${deviceStatus}&amp;pageNumber=${pageNumber+1}"><font size="2">下一页</font></a>
+		</c:if>
+		<c:if test="${pageNumber+1 !=countPages }">
+			<a href="queryDevice?deviceName=${deviceName}&amp;deviceId=${deviceId}&amp;deviceVersion=${deviceVersion}&amp;deviceStatus=${deviceStatus}&amp;pageNumber=${countPages}"><font size="2">尾页</font></a>
+		</c:if>
+		共<var>${countPages}</var>页 
+		<form action="queryDevice?deviceName=${deviceName}&amp;deviceId=${deviceId}&amp;deviceVersion=${deviceVersion}&amp;deviceStatus=${deviceStatus}" method="post"  style="margin:0px;display:inline;">
+		到第<input type="text" name="selectPage" value="${selectPage}" size="3"/>页 <input type="submit"  value="确定"  />
+		</form>
+	</div>
     </div>
     <div></div>
 </body>

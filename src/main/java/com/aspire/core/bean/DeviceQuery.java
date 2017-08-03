@@ -14,7 +14,7 @@ public class DeviceQuery {
 	//起始行
 	protected int startRow;//起始行
 	//页码
-	protected int pageNo = 1;
+	protected int pageNo=1;
 	
 	
 	private String deviceName;

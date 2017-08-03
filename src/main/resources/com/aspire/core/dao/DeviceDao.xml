@@ -13,22 +13,20 @@
 	<sql id="deviceListWhere">
 		<where>
 				1=1 
-				<if test="deviceId != null">
+				<if test="deviceId != null and deviceId!='' " >
 					and deviceId=#{deviceId}
 				</if>
-				<if test="deviceName!=null">
-					and eviceName LIKE "%"#{deviceName}"%"
+				<if test="deviceName!=null  and deviceName!='' ">
+					and deviceName LIKE "%"#{deviceName}"%"
 				</if>
-				<if test="deviceVersion != null">
+				<if test="deviceVersion != null  and deviceVersion!='' ">
 					and firmVersion=#{deviceVersion}
 				</if>
-				<if test="deviceStatus != null">
+				<if test="deviceStatus != null  and deviceStatus!='' ">
 					and deviceStatus=#{deviceStatus}
 				</if>
-				<if test="startTime != null" >
-					<if test="endTime != null">
-					  	and recordDateTime BETWEEN  "#{startTime}" AND "#{endTime}"
-					</if>
+				<if test="startTime != null  and startTime!='' and endTime != null  and endTime!='' " >
+					  	and recordDateTime BETWEEN  '${startTime}' AND '${endTime}'
 				</if>
 			
 		</where>
@@ -47,7 +45,10 @@
 	
 	<!--  获取默认的数据   -->
 	<select id="findDefault" resultMap="device">
-		select * from device where deviceStatus=2
+		select * from device
+		<include refid="deviceListWhere" />
+		<include refid="deviceListOrder" />
+		<include refid="deviceListLimit" />
 	</select>
 	
 	<!-- 修改设备状态 -->

@@ -6,7 +6,7 @@ import com.aspire.core.bean.Device;
 import com.aspire.core.bean.DeviceQuery;
 
 public interface DeviceDao {
-	public List<Device> findDefault();
+	public List<Device> findDefault(DeviceQuery deviceQuery);
 
 	public void changStatus(String deviceId);
 

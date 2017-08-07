@@ -10,7 +10,7 @@ public interface DeviceService {
 
 	public void changeStatus(String deviceId);
 
-	public List<Device> addDevice(Device device);
+	public List<Device> addDevice(Device device, DeviceQuery deviceQuery);
 
 	public List<Device> queryDeviceByPage(DeviceQuery deviceQuery);
 

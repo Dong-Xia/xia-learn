@@ -24,7 +24,6 @@ public class DeviceQuery {
 	private String startTime;
 	private String endTime;
 	
-	
 	public Integer getDeviceStatus() {
 		return deviceStatus;
 	}

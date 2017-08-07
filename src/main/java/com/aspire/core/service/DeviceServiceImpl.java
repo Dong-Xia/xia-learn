@@ -27,20 +27,8 @@ public class DeviceServiceImpl implements DeviceService {
 	}
 
 	@Override
-	public List<Device> addDevice(Device device) {
+	public List<Device> addDevice(Device device,DeviceQuery deviceQuery) {
 		deviceDao.addDevice(device);
-		int pageSize=5;    //每页大小
-		int pageNumber=1;
-		int pages=pageSize*(pageNumber-1);    //所在页的数据起始位置
-		DeviceQuery deviceQuery=new DeviceQuery();
-		deviceQuery.setStartRow(pages);
-		deviceQuery.setPageSize(pageSize);
-		deviceQuery.setDeviceId(null);
-		deviceQuery.setDeviceName(null);
-		deviceQuery.setDeviceStatus(null);
-		deviceQuery.setDeviceVersion(null);
-		deviceQuery.setStartTime(null);
-		deviceQuery.setStartTime(null);
 		return deviceDao.findDefault(deviceQuery);
 	}
 

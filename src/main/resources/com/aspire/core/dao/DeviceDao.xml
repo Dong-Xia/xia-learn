@@ -58,7 +58,8 @@
 	
 	<!-- 增加设备 -->
 	<insert id="addDevice" parameterType="device">
-		insert into device(deviceId,deviceName,firmVersion,recordDateTime,deviceStatus) values(#{deviceId},#{deviceName},#{firmVersion},#{recordDateTime},#{deviceStatus})
+		insert into device(deviceId,deviceName,firmVersion,recordDateTime,deviceStatus) 
+		values(#{deviceId},#{deviceName},#{firmVersion},#{recordDateTime},#{deviceStatus})
 	</insert>
 	
 	<!-- 统计设备记录的总数 -->

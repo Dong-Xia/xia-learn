@@ -1,0 +1,79 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aspire.core.dao.TempDeviceDao">
+	<resultMap id="tempDevice" type="TempDevice">
+		<result property="deviceId" column="deviceId" />
+		<result property="deviceName" column="deviceName" />
+		<result property="firmVersion" column="firmVersion" />
+		<result property="recordDateTime" column="recordDateTime" />
+	</resultMap>
+	
+	
+	<sql id="deviceListWhere">
+		<where>
+				1=1 
+				<if test="deviceId != null and deviceId!='' " >
+					and deviceId=#{deviceId}
+				</if>
+				<if test="deviceName!=null  and deviceName!='' ">
+					and deviceName LIKE "%"#{deviceName}"%"
+				</if>
+				<if test="deviceVersion != null  and deviceVersion!='' ">
+					and firmVersion=#{deviceVersion}
+				</if>
+				<if test="startTime != null  and startTime!='' and endTime != null  and endTime!='' " >
+					  	and recordDateTime BETWEEN  '${startTime}' AND '${endTime}'
+				</if>
+			
+		</where>
+	</sql>
+	
+	<sql id="deviceListOrder">
+		order by recordDateTime DESC
+	</sql>
+	
+	<sql id="deviceListLimit">
+		<if test="startRow != null">
+			limit #{startRow},#{pageSize}
+		</if>
+	</sql>
+	
+	
+	<!--  获取默认的数据   -->
+	<select id="queryTempList" resultMap="tempDevice">
+		select * from tempdevice
+		<include refid="deviceListWhere" />
+		<include refid="deviceListOrder" />
+		<include refid="deviceListLimit" />
+	</select>
+	
+	<!-- 修改设备状态 -->
+	<select id="getActivationDevice"   resultMap="tempDevice">
+		select * from tempdevice where deviceId=#{deviceId}
+	</select>
+	
+	<!-- 增加设备 -->
+	<insert id="addDevice" parameterType="tempDevice" >
+		insert into tempdevice(deviceId,deviceName,firmVersion,recordDateTime) 
+		values(#{deviceId},#{deviceName},#{firmVersion},#{recordDateTime})
+	</insert>
+	
+	<!-- 统计设备记录的总数 -->
+	<select id="getCountRecouds" parameterType="DeviceQuery" resultType="int">
+		select count(1) from tempdevice 
+		<include refid="deviceListWhere" />
+	</select>
+	
+	<!-- 查询指定页的数据 -->
+	<select id="queryDeviceByPage" parameterType="DeviceQuery"  resultMap="tempDevice">
+		select * from tempdevice
+		<include refid="deviceListWhere" />
+		<include refid="deviceListOrder" />
+		<include refid="deviceListLimit" />
+	</select>
+	
+	<!-- 删除临时表中设备 -->
+	<delete id="delete">
+		delete from tempdevice where deviceId=#{deviceId}
+	</delete>
+</mapper>

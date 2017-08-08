@@ -37,13 +37,12 @@
 					文件上传管理
 				</li>
 				<li class="active">
-					<a href="#">音频上传</a>
+					<a href="fileUpload/findMainPage.do" target="main">音频上传</a>
 				</li>
 			</ul>
 		</div>
 		<div class="panel panel-default col-md-10" style="height:450px">
 			<iframe frameborder=0 style="width:100%;height:100%;"   name="main"></iframe>
-			<!-- <div id="main"></div> -->
 		</div>
 	</div>
 </div>

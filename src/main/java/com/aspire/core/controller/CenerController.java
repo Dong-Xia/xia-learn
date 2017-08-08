@@ -54,7 +54,7 @@ public class CenerController {
 		model.addAttribute("countPages",countPages);
 		model.addAttribute("deviceList",deviceList);
 		model.addAttribute("pageNumber",pageNumber);
-		return "/device/deviceList";
+		return "/page/device/deviceList";
 	}
 	
 	//激活设备控制
@@ -65,7 +65,7 @@ public class CenerController {
 		deviceService.changeStatus(deviceId);
 		List<Device> deviceList=deviceService.findDefault();
 		model.addAttribute("deviceList",deviceList);
-		return "/message/message";
+		return "/page/message/message";
 	}
 	//将临时表数据激活到正式表中
 	@RequestMapping(value="/device/activationDevice.do")
@@ -75,7 +75,7 @@ public class CenerController {
 		TempDevice tempDevice=tempDeviceService.changeStatus(deviceId);
 		List<Device> deviceList=deviceService.findDefault();
 		model.addAttribute("deviceList",deviceList);
-		return "/message/message";
+		return "/page/message/message";
 	}
 	
 	//跳转添加设备页面
@@ -97,7 +97,7 @@ public class CenerController {
 		model.addAttribute("deviceVersion",deviceVersion);
 		model.addAttribute("deviceStatus",deviceStatus);
 		
-		return "/device/addDevice";
+		return "/page/device/addDevice";
 		
 	}
 	
@@ -115,7 +115,7 @@ public class CenerController {
 		//增加设备
 	    List<Device> deviceList=tempDeviceService.addDevice(deviceName,firmVersion,deviceStatus);
 	    
-		return "/message/message";
+		return "/page/message/message";
 	}
 	
 	//分页查询设备
@@ -191,7 +191,7 @@ public class CenerController {
 			model.addAttribute("deviceStatus",deviceStatus);
 		}
 		
-		return "/device/deviceList";
+		return "/page/device/deviceList";
 	}
 	
 	
@@ -205,7 +205,7 @@ public class CenerController {
 		model.addAttribute("countPages",countPages);
 		model.addAttribute("deviceList",tempDeviceList.get("tempList"));
 		model.addAttribute("pageNumber",1);
-		return "/device/tempDeviceList";
+		return "/page/device/tempDeviceList";
 	}
 	
 	
@@ -280,6 +280,6 @@ public class CenerController {
 		if(deviceStatus!=null){
 			model.addAttribute("deviceStatus",deviceStatus);
 		}
-		return "/device/tempDeviceList";
+		return "/page/device/tempDeviceList";
 	}
 }

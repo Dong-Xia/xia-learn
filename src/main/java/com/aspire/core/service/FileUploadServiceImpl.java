@@ -6,6 +6,7 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.io.PrintWriter;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
+import javax.sound.sampled.AudioFileFormat;
+import javax.sound.sampled.AudioSystem;
 
 import org.apache.commons.fileupload.FileItem;
 import org.apache.commons.fileupload.ProgressListener;
@@ -22,7 +25,12 @@ import org.apache.commons.fileupload.disk.DiskFileItemFactory;
 import org.apache.commons.fileupload.servlet.ServletFileUpload;
 import org.springframework.stereotype.Service;
 
-import com.aspire.core.bean.ProgressBar;
+import com.aspire.commom.unit.MD5Utils;
+import com.aspire.commom.unit.TimeUtils;
+import com.aspire.core.bean.FileQuery;
+import com.aspire.core.bean.Program;
+import com.aspire.core.bean.TempDevice;
+import com.aspire.core.bean.UploadProgressListener;
 import com.aspire.core.dao.FileUploadDao;
 
 @Service
@@ -31,8 +39,10 @@ public class FileUploadServiceImpl implements FileUploadService{
 	@Resource
 	private FileUploadDao fileUploadDao;
 
+	//文件上传
 	@Override
 	public String upload(HttpServletRequest request, HttpServletResponse response) throws IOException {
+		
 		PrintWriter pout = response.getWriter();
 		try {
 			// 得到存放上传文件的真实路径
@@ -48,15 +58,22 @@ public class FileUploadServiceImpl implements FileUploadService{
 			}*/
 			// ServletFileUpload核心类
 			ServletFileUpload upload = new ServletFileUpload(factory);
-			upload.setProgressListener(new ProgressListener() {
+			//文件上传进度的监听  
+	        UploadProgressListener listener=new UploadProgressListener(request);  
+	          
+	        upload.setProgressListener(listener);  
+			
+			
+/*			upload.setProgressListener(new ProgressListener() {
 				//pBytesRead：当前以读取到的字节数
 				//pContentLength：文件的长度
 				//pItems:第几项
 				public void update(long pBytesRead, long pContentLength,
 						int pItems) {
-					System.out.println("已读取："+pBytesRead+",文件大小："+pContentLength+",第几项："+pItems);
+					
+					//System.out.println("已读取："+pBytesRead+",文件大小："+pContentLength+",第几项："+pItems);
 				}
-			});
+			});*/
 			
 			upload.setFileSizeMax(20 * 1024 * 1024);// 设置单个上传文件的大小
 			upload.setSizeMax(30 * 1024 * 1024);// 设置总文件大小
@@ -79,8 +96,7 @@ public class FileUploadServiceImpl implements FileUploadService{
 						InputStream in = item.getInputStream();
 						// 上传的文件名
 						String fileName = item.getName();// C:\Documents and
-						System.out.println(item.getSize());
-						System.out.println(fileName);
+						String fileSize=String.valueOf(item.getSize());
 						if(fileName==null||"".equals(fileName.trim())){
 							continue;
 						}
@@ -88,15 +104,14 @@ public class FileUploadServiceImpl implements FileUploadService{
 						// a.txt
 						fileName = fileName
 								.substring(fileName.lastIndexOf("\\") + 1);// a.txt
-						fileName = UUID.randomUUID() + "_" + fileName;
-						System.out.println(request.getRemoteAddr()+"=============="+fileName);
+						fileName =TimeUtils.getTimeFormat() + fileName.substring(item.getName().lastIndexOf("."));
 						// 构建输出流
 						// 打散存储目录
 						String newStorePath = makeStorePath(storePath, fileName);// 根据
 						// /WEB-INF/files和文件名，创建一个新的存储路径
 						// /WEB-INF/files/1/12
-						String storeFile = newStorePath + "\\" + fileName;// WEB-INF/files/1/2/sldfdslf.txt
-	
+						String storeFile = newStorePath + "\\" + fileName;
+						
 						OutputStream out = new FileOutputStream(storeFile);
 	
 						byte b[] = new byte[1024];
@@ -107,15 +122,26 @@ public class FileUploadServiceImpl implements FileUploadService{
 						out.close();
 						in.close();
 						item.delete();//删除临时文件
+						
+						Program program=new Program();
+						program.setDuration(Integer.valueOf(getFileTime(storeFile)));
+						String extension=item.getName().substring(item.getName().lastIndexOf("."));
+						program.setExtension(extension);
+						program.setMd5(MD5Utils.digest(item.getName()));
+						program.setName(item.getName());
+						program.setSize(fileSize);
+						program.setRecordDateTime(new Date());
+						program.setSystemFileName(TimeUtils.getTimeFormat()+extension);
+						fileUploadDao.insertFile(program);
 					}
 				 }
 			}
 		} catch (org.apache.commons.fileupload.FileUploadBase.FileSizeLimitExceededException e) {
 			// 单个文件超出大小时的异常
-			pout.write("单个文件大小不能超出4M");
+			pout.write("单个文件大小不能超出20M");
 		} catch (org.apache.commons.fileupload.FileUploadBase.SizeLimitExceededException e) {
 			// 总文件超出大小时的异常
-			pout.write("总文件大小不能超出6M");
+			pout.write("总文件大小不能超出30M");
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
@@ -123,15 +149,59 @@ public class FileUploadServiceImpl implements FileUploadService{
 	}
 	// 根据 /WEB-INF/files和文件名，创建一个新的存储路径 /WEB-INF/files/1/12
 	private String makeStorePath(String storePath, String fileName) {
-		int hashCode = fileName.hashCode();
-		int dir1 = hashCode & 0xf;// 0000~1111：整数0~15共16个
-		int dir2 = (hashCode & 0xf0) >> 4;// 0000~1111：整数0~15共16个
 
-		String path = storePath + "\\" + dir1 + "\\" + dir2; // WEB-INF/files/1/12
+		String path = storePath; 
 		File file = new File(path);
 		if (!file.exists())
 			file.mkdirs();
 
 		return path;
 	}
+	
+	/**
+	 * 获取上传的音频的时长
+	 * @param path
+	 * @return
+	 */
+	public String getFileTime(String path) {  
+	    File file = new File(path);  
+	    long total = 0;  
+	    try {  
+	        AudioFileFormat aff = AudioSystem.getAudioFileFormat(file);  
+	        Map props = aff.properties();  
+	        if (props.containsKey("duration")) {  
+	            total = (long) Math.round((((Long) props.get("duration")).longValue()) / 1000);  
+	        }  
+	        return String.valueOf(total/1000);
+	    } catch (Exception e) {  
+	        e.printStackTrace();  
+	    }
+		return null;  
+		
+	}
+	
+	//分页查询文件信息
+	@Override
+	public Map<String,Object> queryPage(FileQuery file) {
+		 Map<String,Object> fileMap=new HashMap<String,Object>();
+		 
+		 List<Program> fileList=fileUploadDao.queryPage(file);
+		 //计算总的数量
+		int totalRecouds=fileUploadDao.getCountRecouds(file); 
+		Integer totalpages=totalRecouds%file.getPageSize()==0?totalRecouds/file.getPageSize():totalRecouds/file.getPageSize()+1;   //计算总页数
+		fileMap.put("fileList",fileList );
+		fileMap.put("totalPages", totalpages);
+		
+		return fileMap;
+	}
+	
+	/**
+	 * 删除文件
+	 */
+	@Override
+	public void deleteFile(String fileId) {
+		fileUploadDao.deleteFile(fileId);
+	}
+	
+	
 }

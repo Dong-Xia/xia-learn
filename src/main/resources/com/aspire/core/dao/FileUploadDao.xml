@@ -1,0 +1,84 @@
+<?xml version="1.0" encoding="UTF-8" ?>  
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aspire.core.dao.FileUploadDao">
+	<resultMap id="program" type="Program">
+		<result property="id" column="id" />
+		<result property="name" column="name" />
+		<result property="duration" column="duration" />
+		<result property="md5" column="md5" />
+		<result property="extension" column="extension" />
+		<result property="size" column="size" />
+		<result property="recordDateTime" column="recordDateTime" />
+		<result property="systemFileName" column="systemFileName" />
+	</resultMap>
+	
+	
+	<sql id="programWhere">
+			<where>
+					1=1 
+					<if test="fileName != null and fileName!='' " >
+						and name LIKE "%"#{fileName}"%"
+					</if>
+					<if test="duration!=null  and duration!='' ">
+						<if test="durationSelect==1">
+							and duration>#{duration}
+						</if>
+						<if test="durationSelect==2">
+							and duration &lt; #{duration} 
+						</if>
+						<if test="durationSelect==3">
+							and duration = #{duration}
+						</if>
+					</if>
+					<if test="size!=null  and size!='' ">
+						<if test="sizeSelect==1">
+							and size > #{size}
+						</if>
+						<if test="sizeSelect==2">
+							and size &lt; #{size} 
+						</if>
+						<if test="sizeSelect==3">
+							and size = #{size}
+						</if>
+					</if>
+					<if test="startTime != null  and startTime!='' and endTime != null  and endTime!='' " >
+						  	and recordDateTime BETWEEN  '${startTime}' AND '${endTime}'
+					</if>
+			</where>
+		</sql>
+	
+	<sql id="programOrder">
+		order by recordDateTime DESC
+	</sql>
+	
+	<sql id="programLimit">
+		<if test="startRow != null">
+			limit #{startRow},#{pageSize}
+		</if>
+	</sql>
+
+	<!-- 添加文件-->
+	<insert id="insertFile" parameterType="program" >
+		insert into program(name,duration,md5,extension,size,recordDateTime,systemFileName) 
+		values(#{name},#{duration},#{md5},#{extension},#{size},#{recordDateTime},#{systemFileName})
+	</insert>
+
+	<!-- 查询文件信息 -->
+	<select id="queryPage" parameterType="FileQuery" resultMap="program">
+		select * from program
+		<include refid="programWhere" />
+		<include refid="programOrder" />
+		<include refid="programLimit" />
+	</select>
+	
+	<!-- 计算总的文件数 -->
+	<select id="getCountRecouds" parameterType="FileQuery" resultType="int">
+		select count(1) from program 
+		<include refid="programWhere" />
+	</select>
+	
+	<!-- 删除文件 -->
+	<delete id="deleteFile">
+		delete from program where id=#{fileId}
+	</delete>
+</mapper>

@@ -2,12 +2,14 @@ package com.aspire.core.bean;
 
 import java.util.Date;
 
+import com.aspire.commom.unit.TimeUtils;
+
 /**
  * 音频文件持久化类
  * @author xia
  *
  */
-public class program {
+public class Program {
 	private int id;
 	private String name;
 	private int duration;
@@ -15,6 +17,15 @@ public class program {
 	private String extension;
 	private String size;
 	private Date recordDateTime;
+	private String systemFileName;
+	
+	
+	public String getSystemFileName() {
+		return systemFileName;
+	}
+	public void setSystemFileName(String systemFileName) {
+		this.systemFileName = systemFileName;
+	}
 	public int getId() {
 		return id;
 	}

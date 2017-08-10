@@ -43,6 +43,7 @@ public class FileController {
 		 request.setAttribute("fileSelect", file);
 		 request.setAttribute("totalPages", fileMap.get("totalPages"));
 		 request.setAttribute("selectPage", fileMap.get("selectPage"));
+		
 		return "/page/fileUpload/fileList";
 	}
 	
@@ -89,6 +90,7 @@ public class FileController {
 		String endTime = request.getParameter("endTime");
 		String pageNo = request.getParameter("pageNo");
 		String selectPage = request.getParameter("selectPage");
+		String numberSelect=request.getParameter("numberSelect");
 		
 		FileQuery file=new FileQuery();
 		file.setDuration(duration);
@@ -105,11 +107,15 @@ public class FileController {
 			file.setPageNo(Integer.valueOf(pageNo));
 		}
 		
+		if(numberSelect!=null&&!numberSelect.equals("")){
+			file.setPageSize(Integer.valueOf(numberSelect));
+		}
 		 Map<String,Object> fileMap=fileUploadService.queryPage(file);
 		 request.setAttribute("fileList", fileMap.get("fileList"));
 		 request.setAttribute("fileSelect", file);
 		 request.setAttribute("totalPages", fileMap.get("totalPages"));
 		 request.setAttribute("selectPage", fileMap.get("selectPage"));
+		 request.setAttribute("numberSelect", numberSelect);
 		 
 		return "/page/fileUpload/fileList";
 	}

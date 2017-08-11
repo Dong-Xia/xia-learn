@@ -52,19 +52,12 @@ public class FileController {
 	public String findUpload(HttpServletRequest request,HttpServletResponse response) throws IOException{
 		request.setCharacterEncoding("UTF-8");
 		response.setContentType("text/html;charset=UTF-8");
-		fileUploadService.upload(request,response);
+		String message=fileUploadService.upload(request,response);
+		request.setAttribute("message", message);
 		
-		return "redirect:/fileUpload/findMainPage.do";
+		return "/page/message/fileUploadMessage";
 	}
 	
-/*	//首页默认查询控制
-	@RequestMapping(value="/fileUpload/generateMD5.do")
-	public void generateMD5(HttpServletRequest request,HttpServletResponse response,Model model) throws IOException{
-		request.setCharacterEncoding("UTF-8");
-		response.setContentType("text/html;charset=UTF-8");
-		fileUploadService.upload(request,response);
-		
-	}*/
 	
 	//删除文件
 	@RequestMapping(value="/fileUpload/deleteFile.do")
@@ -119,6 +112,7 @@ public class FileController {
 		 
 		return "/page/fileUpload/fileList";
 	}
+	
 	
 	//上传文件监听类
 	@RequestMapping(value="/fileUpload/fileUploadStatus.do")

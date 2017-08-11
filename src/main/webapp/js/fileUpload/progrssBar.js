@@ -18,8 +18,8 @@
                              alert("上传成功"); 
                          }else{  
                               progress=data;  
-                             $("#show").width(data);  
-                             $("#msg").text(data);  
+                             $("#progressBar").width(data);  
+                             $("#percent").text(data);  
                          }  
                      }  
              });  

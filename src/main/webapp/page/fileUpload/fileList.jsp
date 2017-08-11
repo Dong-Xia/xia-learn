@@ -1,7 +1,8 @@
 <%@ page language="java" contentType="text/html; charset=utf-8"
     pageEncoding="utf-8"%>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-<!-- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd"> -->
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %> 
+<!-- <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <!DOCTYPE html>
 <html>
 <head>
@@ -16,8 +17,13 @@
 	<script src="/ssmAspire/js/bootstrap/bootstrap.min.js"></script>
 	<!-- 引入进度条信息文件-->
 	<script src="/ssmAspire/js/fileUpload/progrssBar.js"></script>
+	<script src="/ssmAspire/js/fileUpload/duration.js"></script>
+	<script src="/ssmAspire/js/fileUpload/fileupload.js"></script>
 	<!-- 引入MD5计算 -->
-	<script src="/ssmAspire/js/fileUpload/MD5.js"></script>
+	<script src="/ssmAspire/js/webUpload/MD5.js"></script>
+	<script src="/ssmAspire/js/webUpload/spark-md5.js"></script>
+	<link rel="stylesheet" type="text/css" href="/ssmAspire/css/webUpload/webuploader.css">
+	<script type="text/javascript" src="/ssmAspire/js/webUpload/webuploader.js"></script>
 	
 	<script type="text/javascript">
 	 $(function(){
@@ -107,8 +113,8 @@
 				    		<c:forEach items="${fileList}" var="f">
 				    		<tr>
 				    			<td>${f.name}</td>
-				    			<td>${f.duration}</td>
-				    			<td>${f.recordDateTime}</td>
+				    			<td>${f.duration}秒</td>
+				    			<td><fmt:formatDate value="${f.recordDateTime}"/><br></td>
 	 			    			<td>${f.size}</td>
 				    			<td>
 				    				<a href="deleteFile.do?fileId=${f.id}">
@@ -140,7 +146,7 @@
 							<a href="queryPage.do?fileName=${fileSelect.fileName}&amp;durationSelect=${fileSelect.durationSelect}&amp;duration=${fileSelect.duration}&amp;sizeSelect=${fileSelect.sizeSelect}&amp;startTime=${startTime}&amp;endTime=${endTime}&amp;numberSelect=${numberSelect}&amp;pageNo=${fileSelect.pageNo+1}"><font size="2">下一页</font></a>
 						</c:if>                                                                                                                                                                                                                                       
 						<c:if test="${fileSelect.pageNo+1 <=totalPages }">                                                                                                                                                                                           
-							<a href="queryPage.do?fileName=${fileSelect.fileName}&amp;durationSelect=${fileSelect.durationSelect}&amp;duration=${fileSelect.duration}&amp;sizeSelect=${fileSelect.sizeSelect}&amp;startTime=${startTime}&amp;endTime=${endTime}&amp;numberSelect=${numberSelect}&amp;pageNo=${countPages}"><font size="2">尾页</font></a>
+							<a href="queryPage.do?fileName=${fileSelect.fileName}&amp;durationSelect=${fileSelect.durationSelect}&amp;duration=${fileSelect.duration}&amp;sizeSelect=${fileSelect.sizeSelect}&amp;startTime=${startTime}&amp;endTime=${endTime}&amp;numberSelect=${numberSelect}&amp;pageNo=${totalPages}"><font size="2">尾页</font></a>
 						</c:if>                                                                                                                                                                                                                                
 						共<var>${totalPages}</var>页 
 					   <form action="queryPage.do?fileName=${fileSelect.fileName}&amp;durationSelect=${fileSelect.durationSelect}&amp;duration=${fileSelect.duration}&amp;sizeSelect=${fileSelect.sizeSelect}&amp;startTime=${startTime}&amp;endTime=${endTime}&amp;numberSelect=${numberSelect}" method="post"  style="margin:0px;display:inline;">
@@ -149,31 +155,37 @@
 					</div>
 					<div id="fileUpload" class="row-fluid">
 						<div class="span12">
-							<form id="formFile" action="findUpload.do" method="post" enctype="multipart/form-data" role="form">
+							<form id="formFile" action="findUpload.do" method="post" enctype="multipart/form-data" >
 								<fieldset>
-									 <legend>文件上传</legend> 
+									 <legend>文件上传</legend>
 									<div class="form-group">
-									  <div class="col-xs-2">
-										 <!-- <span class="help-block">目前仅支持mp3音频格式</span> --> 
-										 <input type="text" name="md5" hidden="true" />
-										 <input type="file" name="f1"/>
+									  <div class="col-xs-11">
+										 <input type="text"  value="" id="md5" hidden="true"  name="md5"/>
+										<!--  <input type="text" value=""  id="filename" hidden="true"/> -->
+										 <div id="wrapper">
+										 	<input id="file" type="file" class="file" name="f1" accept="audio/mp3" style="display: inline;"/>
+										 </div>
 									  </div>
-									  <div class="col-xs-9">
-										 <input type="button"  id="trigger" value="预览"/>
-									 </div>
+<!-- 									  <div class="col-xs-9">
+										 <div id="filePicker">计算文件MD5</div>
+									 </div> -->
+
 									   <div class="col-xs-1">
-										 <input type="button" onclick="formSubmit()" value="上传"/>
+										 <input id="uploadButton" type="button" hidden="true" onclick="formSubmit()" value="上传"/>
 										</div>
 									 </div>
 								</fieldset>
 							</form>
-							<div class="media-body">
-								<p><embed src="/ssmAspire/image/2.mp3"  autostart=true loop=true width="100%"  height="40px" id="media"></embed></p>
+							<div class="col-xs-12" id="media">
 							</div>
-							<div style="width:100%;">
-						       <div id="show" style="background:#0ff;height:26px;width:0%;"></div>  
-						    </div>  
-						    	<span id="msg"></span>
+							<div id="status" class="col-xs-12"> </div>
+							<div class="col-xs-12" style="width:100%">
+								<div class="progress">
+						           <div id="progressBar" style="background:#0ff;height:26px;width:0%;">  
+						    		<span id="percent"></span>
+						    		</div>
+						    	</div>
+							</div> 
 						</div>
 					</div>
 				</div>
@@ -183,31 +195,5 @@
 </div>
 </body>
 
-<script type="text/javascript">
-	$("#trigger").click(function(){
-		var form=new FormData(document.getElementById("formFile"));
-		$.ajax({
-			url:"${pageContext.request.contextPath}/fileUpload/findUpload.do",
-			type:"post",
-			data:form,
-			dataType:"json",
-            processData:false,
-            contentType:false,
-            success:function(data){
-            	alert("上传成功");
-            },
-            error:function(e){
-                alert("错误！！");
-                window.clearInterval(timer);
-            } 
-		});
-		//计算MD5
-		//浏览MP3，显示媒体播放区域
-		$('#fileUpload').show();
-		$("#media").show();
 
-		//显示上传按钮
-	})
-
-</script>
 </html>
